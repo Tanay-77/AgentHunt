@@ -29,15 +29,15 @@ const AgentCard: FC<AgentCardProps> = ({ agent }) => {
   return (
     <Link
       href={`/agent/${agent.slug}`}
-      className="group block bg-card border border-border rounded-xl p-5 hover:border-brand/30 transition-all glow-hover relative shadow-sm hover:shadow-md"
+      className="group block bg-white border border-gray-200 rounded-xl p-6 hover:shadow-lg hover:border-black/50 transition-all duration-300"
     >
       <div className="flex gap-6 items-start">
         {/* Upvote Button */}
         <button
           onClick={handleUpvote}
           className={`flex flex-col items-center justify-center min-w-[50px] h-[60px] rounded-lg border transition-all ${hasUpvoted
-            ? 'bg-brand/10 border-brand/50 text-brand'
-            : 'bg-gray-50 border-border text-muted group-hover:border-brand/30'
+            ? 'bg-black text-white border-black'
+            : 'bg-white border-gray-200 text-gray-500 hover:border-black hover:text-black'
             }`}
         >
           <ChevronUp className={`w-5 h-5 mb-1 transition-transform ${hasUpvoted ? 'translate-y-[-2px]' : ''}`} />
@@ -46,30 +46,30 @@ const AgentCard: FC<AgentCardProps> = ({ agent }) => {
 
         <div className="flex-1">
           <div className="flex items-center justify-between mb-2">
-            <h3 className="text-xl font-bold text-primary group-hover:text-brand transition-colors">
+            <h3 className="text-xl font-bold text-black group-hover:underline decoration-2 underline-offset-4 transition-all">
               {agent.name}
             </h3>
-            <span className="text-xs font-mono uppercase tracking-widest px-2 py-1 bg-gray-100 rounded border border-border text-muted font-bold">
+            <span className="text-xs font-bold uppercase tracking-widest px-2 py-1 bg-gray-100 rounded text-gray-900 border border-gray-200">
               {agent.framework}
             </span>
           </div>
 
-          <p className="text-muted text-sm mb-4 line-clamp-1">
+          <p className="text-gray-600 text-sm mb-4 line-clamp-1">
             {agent.tagline}
           </p>
 
-          <div className="flex flex-wrap items-center gap-4">
-            <div className="flex items-center gap-1.5 text-xs text-muted">
-              <Zap className="w-3.5 h-3.5 text-brand" />
-              <span>Success Rate: <span className="text-success font-bold">{agent.success_rate}%</span></span>
+          <div className="flex flex-wrap items-center gap-4 text-sm">
+            <div className="flex items-center gap-1.5 min-w-[100px]">
+              <span className="text-gray-400">Success</span>
+              <span className="text-black font-semibold">{agent.success_rate}%</span>
             </div>
-            <div className="flex items-center gap-1.5 text-xs text-muted">
-              <Clock className="w-3.5 h-3.5 text-brand" />
-              <span>Latency: <span className="text-primary font-medium">{agent.latency_avg}ms</span></span>
+            <div className="flex items-center gap-1.5 min-w-[100px]">
+              <span className="text-gray-400">Latency</span>
+              <span className="text-black font-semibold">{agent.latency_avg}ms</span>
             </div>
-            <div className="flex items-center gap-1.5 text-xs text-muted">
-              <TrendingUp className="w-3.5 h-3.5 text-brand" />
-              <span>Cost: <span className="text-primary font-medium">${agent.cost_per_task}</span></span>
+            <div className="flex items-center gap-1.5 min-w-[100px]">
+              <span className="text-gray-400">Cost</span>
+              <span className="text-black font-semibold">${agent.cost_per_task}</span>
             </div>
           </div>
         </div>
@@ -78,9 +78,9 @@ const AgentCard: FC<AgentCardProps> = ({ agent }) => {
           <img
             src={agent.creator?.avatar_url}
             alt={agent.creator?.username}
-            className="w-8 h-8 rounded-full border border-border"
+            className="w-8 h-8 rounded-full border border-gray-200 grayscale group-hover:grayscale-0 transition-all"
           />
-          <span className="text-[10px] font-mono text-muted uppercase">By {agent.creator?.username}</span>
+          <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">By {agent.creator?.username}</span>
         </div>
       </div>
     </Link>
