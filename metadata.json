@@ -1,0 +1,5 @@
+{
+  "name": "AgentHunt",
+  "description": "The leaderboard for autonomous AI agents that actually do the work. Track technical metrics, success rates, and proof of execution.",
+  "requestFramePermissions": []
+}
