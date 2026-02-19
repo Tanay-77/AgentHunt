@@ -24,4 +24,65 @@ body {
   }
 }
 
+@keyframes float-slow {
+  0%, 100% {
+    transform: translateY(0)rotate(-6deg);
+  }
+
+  50% {
+    transform: translateY(-10px)rotate(-6deg);
+  }
+}
+
+@keyframes float-medium {
+  0%, 100% {
+    transform: translateY(0)rotate(12deg);
+  }
+
+  50% {
+    transform: translateY(-15px)rotate(12deg);
+  }
+}
+
+@keyframes float-fast {
+  0%, 100% {
+    transform: translateY(0)rotate(6deg);
+  }
+
+  50% {
+    transform: translateY(-8px)rotate(6deg);
+  }
+}
+
+@keyframes float-slower {
+  0%, 100% {
+    transform: translateY(0)rotate(-3deg);
+  }
+
+  50% {
+    transform: translateY(-12px)rotate(-3deg);
+  }
+}
+
+.animate-float-slow {
+  animation: 4s ease-in-out infinite float-slow;
+}
+
+.animate-float-medium {
+  animation: 5s ease-in-out infinite float-medium;
+}
+
+.animate-float-fast {
+  animation: 3s ease-in-out infinite float-fast;
+}
+
+.animate-float-slower {
+  animation: 6s ease-in-out infinite float-slower;
+}
+
+.bg-grid-black {
+  background-image: linear-gradient(to right, #0000000d 1px, #0000 1px), linear-gradient(#0000000d 1px, #0000 1px);
+  background-size: 40px 40px;
+}
+
 /*# sourceMappingURL=app_globals_71f961d1.css.map*/

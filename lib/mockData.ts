@@ -52,7 +52,7 @@ export const MOCK_AGENTS: Agent[] = [
     github_url: '#',
     created_at: new Date(Date.now() - 3600000).toISOString(),
     upvotes_count: 89,
-    has_upvoted: true,
+    has_upvoted: false,
     creator: MOCK_PROFILES[1]
   },
   {

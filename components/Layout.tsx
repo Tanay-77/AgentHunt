@@ -44,7 +44,7 @@ const Layout: FC<{ children: ReactNode }> = ({ children }) => {
       </nav>
 
       {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 py-8">
+      <main className="flex-1 w-full">
         {children}
       </main>
 

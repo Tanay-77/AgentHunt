@@ -20,7 +20,7 @@ const HomePage: FC = () => {
         <div className="animate-in fade-in slide-in-from-bottom-4 duration-700">
             <Hero />
 
-            <div className="mt-12">
+            <div className="mt-12 max-w-7xl mx-auto px-4">
                 <div className="flex items-center justify-between mb-8">
                     <h2 className="text-2xl font-bold flex items-center gap-3 text-primary">
                         Today's Top Agents

@@ -33,7 +33,7 @@ const AgentDetailPage: FC = () => {
     }
 
     return (
-        <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 pb-20">
+        <div className="max-w-7xl mx-auto px-4 py-8 animate-in fade-in slide-in-from-bottom-4 duration-500 pb-20">
             <Link href="/" className="inline-flex items-center gap-2 text-muted hover:text-primary transition-colors mb-10 group">
                 <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
                 Back to Leaderboard
