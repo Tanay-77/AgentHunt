@@ -13,20 +13,56 @@ import {
     Terminal,
     PlayCircle
 } from 'lucide-react';
-import { MOCK_AGENTS } from '../../../lib/mockData';
+import { supabase } from '../../../lib/supabase';
 import { Agent } from '../../../types';
 
 const AgentDetailPage: FC = () => {
     const params = useParams();
     const slug = params?.slug as string;
     const [agent, setAgent] = useState<Agent | null>(null);
+    const [isLoading, setIsLoading] = useState(true);
+    const [user, setUser] = useState<any>(null);
 
     useEffect(() => {
-        if (slug) {
-            const found = MOCK_AGENTS.find(a => a.slug === slug);
-            if (found) setAgent(found);
-        }
+        // Check session
+        supabase.auth.getSession().then(({ data: { session } }) => {
+            setUser(session?.user ?? null);
+        });
+
+        // Listen for auth changes
+        const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+            setUser(session?.user ?? null);
+        });
+
+        return () => subscription.unsubscribe();
+    }, []);
+
+    useEffect(() => {
+        const fetchAgent = async () => {
+            if (!slug) return;
+
+            try {
+                const { data, error } = await supabase
+                    .from('agents')
+                    .select('*, creator:profiles(*)')
+                    .eq('slug', slug)
+                    .single();
+
+                if (error) throw error;
+                if (data) setAgent(data);
+            } catch (error) {
+                console.error('Error fetching agent:', error);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+
+        fetchAgent();
     }, [slug]);
+
+    if (isLoading) {
+        return <div className="p-20 text-center animate-pulse">Loading agent details...</div>;
+    }
 
     if (!agent) {
         return <div className="p-20 text-center">Agent not found.</div>;
@@ -69,61 +105,89 @@ const AgentDetailPage: FC = () => {
                         </div>
                     </div>
 
-                    {/* Proof of Work Player */}
-                    <section className="space-y-4">
-                        <h3 className="text-xl font-bold flex items-center gap-2 text-primary">
-                            <PlayCircle className="w-5 h-5 text-brand" />
-                            Proof of Work
-                        </h3>
-                        <div className="aspect-video bg-gray-100 rounded-2xl border border-border relative group overflow-hidden shadow-sm">
-                            <img src={`https://picsum.photos/seed/${agent.slug}/1280/720`} className="w-full h-full object-cover opacity-90 group-hover:scale-105 transition-transform duration-700" alt="Work proof" />
-                            <div className="absolute inset-0 flex items-center justify-center">
-                                <div className="w-20 h-20 bg-brand rounded-full flex items-center justify-center shadow-2xl shadow-brand/40 transform scale-90 group-hover:scale-100 transition-all cursor-pointer">
-                                    <PlayCircle className="w-10 h-10 fill-white text-brand" />
+                    <div className="relative">
+                        {/* Content Gating Overlay */}
+                        {!user && (
+                            <div className="absolute inset-0 z-10 bg-white/60 backdrop-blur-md flex flex-col items-center justify-center border border-gray-100 rounded-2xl">
+                                <div className="text-center p-8 bg-white/80 rounded-2xl shadow-xl border border-gray-200/50 max-w-md mx-6">
+                                    <div className="w-12 h-12 bg-black text-white rounded-full flex items-center justify-center mx-auto mb-4">
+                                        <ShieldCheck className="w-6 h-6" />
+                                    </div>
+                                    <h3 className="text-2xl font-bold text-gray-900 mb-2">Member Content</h3>
+                                    <p className="text-gray-500 mb-6">
+                                        Sign in to view technical execution logs, proof of work, and performance metrics for {agent.name}.
+                                    </p>
+                                    <button
+                                        onClick={async () => {
+                                            await supabase.auth.signInWithOAuth({
+                                                provider: 'github',
+                                                options: { redirectTo: `${window.location.origin}/auth/callback` }
+                                            });
+                                        }}
+                                        className="bg-black text-white px-8 py-3 rounded-xl font-bold hover:bg-gray-800 transition-all shadow-lg w-full"
+                                    >
+                                        Sign in with GitHub
+                                    </button>
                                 </div>
                             </div>
-                            <div className="absolute bottom-4 left-4 right-4 bg-white/90 backdrop-blur-md p-4 rounded-xl border border-white/20 flex items-center justify-between shadow-lg">
-                                <div className="flex items-center gap-3">
-                                    <div className="w-2 h-2 rounded-full bg-success animate-pulse" />
-                                    <span className="text-xs font-mono text-primary font-bold">Recorded execution session: March 24, 2024</span>
-                                </div>
-                                <span className="text-xs font-mono text-muted">04:32</span>
-                            </div>
-                        </div>
-                    </section>
+                        )}
 
-                    {/* Technical Logs */}
-                    <section className="space-y-4">
-                        <h3 className="text-xl font-bold flex items-center gap-2 text-primary">
-                            <Terminal className="w-5 h-5 text-brand" />
-                            Execution Logs
-                        </h3>
-                        <div className="bg-[#111827] border border-border rounded-xl p-6 font-mono text-sm overflow-hidden relative shadow-lg">
-                            <div className="flex gap-4 mb-4 text-gray-400 border-b border-gray-800 pb-2">
-                                <span>output.log</span>
-                                <span className="text-brand border-b border-brand pb-2 -mb-2.5">metrics.json</span>
-                                <span>agent.yaml</span>
+                        {/* Proof of Work Player */}
+                        <section className={`space-y-4 ${!user ? 'opacity-20 pointer-events-none select-none filter blur-sm' : ''}`}>
+                            <h3 className="text-xl font-bold flex items-center gap-2 text-primary">
+                                <PlayCircle className="w-5 h-5 text-brand" />
+                                Proof of Work
+                            </h3>
+                            <div className="aspect-video bg-gray-100 rounded-2xl border border-border relative group overflow-hidden shadow-sm">
+                                <img src={`https://picsum.photos/seed/${agent.slug}/1280/720`} className="w-full h-full object-cover opacity-90 group-hover:scale-105 transition-transform duration-700" alt="Work proof" />
+                                <div className="absolute inset-0 flex items-center justify-center">
+                                    <div className="w-20 h-20 bg-brand rounded-full flex items-center justify-center shadow-2xl shadow-brand/40 transform scale-90 group-hover:scale-100 transition-all cursor-pointer">
+                                        <PlayCircle className="w-10 h-10 fill-white text-brand" />
+                                    </div>
+                                </div>
+                                <div className="absolute bottom-4 left-4 right-4 bg-white/90 backdrop-blur-md p-4 rounded-xl border border-white/20 flex items-center justify-between shadow-lg">
+                                    <div className="flex items-center gap-3">
+                                        <div className="w-2 h-2 rounded-full bg-success animate-pulse" />
+                                        <span className="text-xs font-mono text-primary font-bold">Recorded execution session: March 24, 2024</span>
+                                    </div>
+                                    <span className="text-xs font-mono text-muted">04:32</span>
+                                </div>
                             </div>
-                            <pre className="text-green-400/90 leading-relaxed whitespace-pre-wrap">
-                                {`{
-  "task_id": "exec_847293",
-  "agent": "${agent.name}",
-  "latency": ${agent.latency_avg},
-  "token_usage": {
-    "prompt": 1420,
-    "completion": 450
-  },
-  "success": true,
-  "confidence_score": 0.992,
-  "actions": [
-    { "step": 1, "type": "observation", "source": "github_api" },
-    { "step": 2, "type": "reasoning", "model": "gemini-3-pro-preview" },
-    { "step": 3, "type": "execution", "method": "git_push" }
-  ]
-}`}
-                            </pre>
-                        </div>
-                    </section>
+                        </section>
+
+                        {/* Technical Logs */}
+                        <section className={`space-y-4 mt-12 ${!user ? 'opacity-20 pointer-events-none select-none filter blur-sm' : ''}`}>
+                            <h3 className="text-xl font-bold flex items-center gap-2 text-primary">
+                                <Terminal className="w-5 h-5 text-brand" />
+                                Execution Logs
+                            </h3>
+                            <div className="bg-[#111827] border border-border rounded-xl p-6 font-mono text-sm overflow-hidden relative shadow-lg">
+                                <div className="flex gap-4 mb-4 text-gray-400 border-b border-gray-800 pb-2">
+                                    <span>output.log</span>
+                                    <span className="text-brand border-b border-brand pb-2 -mb-2.5">metrics.json</span>
+                                    <span>agent.yaml</span>
+                                </div>
+                                <pre className="text-green-400/90 leading-relaxed whitespace-pre-wrap">
+                                    {`{
+                                      "task_id": "exec_847293",
+                                      "agent": "${agent.name}",
+                                      "latency": ${agent.latency_avg},
+                                      "token_usage": {
+                                        "prompt": 1420,
+                                        "completion": 450
+                                      },
+                                      "success": true,
+                                      "confidence_score": 0.992,
+                                      "actions": [
+                                        { "step": 1, "type": "observation", "source": "github_api" },
+                                        { "step": 2, "type": "reasoning", "model": "gemini-3-pro-preview" },
+                                        { "step": 3, "type": "execution", "method": "git_push" }
+                                      ]
+                                    }`}
+                                </pre>
+                            </div>
+                        </section>
+                    </div>
                 </div>
 
                 {/* Right Column: Technical Sidebar */}
